@@ -16,5 +16,21 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ACharacter> MoleClass = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* UnburrowSound = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* HitMole = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* HitVeggie = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* HitEmpty = nullptr;
+
+public:
+
+	static const UWmGlobalsDataAsset* Get(const UObject* Context);
 	
 };

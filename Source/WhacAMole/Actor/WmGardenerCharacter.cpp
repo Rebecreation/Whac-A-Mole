@@ -12,6 +12,7 @@
 #include "Camera/CameraActor.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
+#include "../DataAsset/WmGlobalsDataAsset.h"
 
 AWmGardenerCharacter::AWmGardenerCharacter()
 {
@@ -76,6 +77,8 @@ void AWmGardenerCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AWmGardenerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AWmGardenerCharacter::MoveRight);
+
+	PlayerInputComponent->BindAction("Hit", IE_Released, this, &AWmGardenerCharacter::Hit);
 }
 
 /*void AWmGardenerCharacter::Move(const FInputActionValue& Value)
@@ -140,6 +143,14 @@ void AWmGardenerCharacter::MoveRight(float Value)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
+	}
+}
+
+void AWmGardenerCharacter::Hit()
+{
+	if (const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this))
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->HitEmpty, GetActorLocation(), GetActorRotation());
 	}
 }
 

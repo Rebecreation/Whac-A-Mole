@@ -11,7 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraActor.h"
 #include "EngineUtils.h"
-
+#include "Kismet/GameplayStatics.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AWhacAMoleCharacter

@@ -29,6 +29,15 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class USoundBase* HitEmpty = nullptr;
 
+	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* PickUpVeggie = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UMaterialInterface* StunnedMaterial = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UForceFeedbackEffect* ForceFeedbackEffect = nullptr;
+
 public:
 
 	static const UWmGlobalsDataAsset* Get(const UObject* Context);

@@ -7,6 +7,12 @@
 #include "InputActionValue.h"
 #include "WmGardenerCharacter.generated.h"
 
+UENUM()
+enum class EWmGardenerState : uint8
+{
+	Default,
+	Attacking
+};
 
 UCLASS(config=Game)
 class AWmGardenerCharacter : public ACharacter
@@ -30,9 +36,16 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
 
+	UPROPERTY(EditAnywhere)
+	float HitCooldown = 1.0f;
+
+	TOptional<float> LastHitStartTime;
+
 public:
 
 	AWmGardenerCharacter();
+
+	virtual void TickActor(float DeltaTime, ELevelTick TickType, FActorTickFunction& ThisTickFunction) override;
 	
 protected:
 
@@ -52,5 +65,6 @@ protected:
 
 	void ApplyHit();
 
+	void TryPickUp();
 };
 

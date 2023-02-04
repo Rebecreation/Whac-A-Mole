@@ -13,6 +13,9 @@
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "../DataAsset/WmGlobalsDataAsset.h"
+#include "../Resource/WmGlobals.h"
+#include "WmVeggieSpawner.h"
+
 
 AWmMoleCharacter::AWmMoleCharacter()
 {
@@ -38,6 +41,9 @@ AWmMoleCharacter::AWmMoleCharacter()
 
 	MoleRoot = CreateDefaultSubobject<USceneComponent>(TEXT("MoleRoot"));
 	MoleRoot->SetupAttachment(GetRootComponent());
+
+	HitBox = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HitBox"));
+	HitBox->SetupAttachment(GetRootComponent());
 }
 
 void AWmMoleCharacter::TickActor(float DeltaTime, ELevelTick TickType, FActorTickFunction& ThisTickFunction)
@@ -46,48 +52,131 @@ void AWmMoleCharacter::TickActor(float DeltaTime, ELevelTick TickType, FActorTic
 
 	float AnimationRatio = bIsBurrowed ? 1.0f : 0.0f;
 
+	// Entered burrowed state
 	if (bIsBurrowed && !BurrowAnimationStartTime && !UndergroundStartTime)
 	{
 		UndergroundStartTime = UGameplayStatics::GetUnpausedTimeSeconds(this);
 	}
-	if (UndergroundStartTime)
+
+	// Max underground time exceeded
+	/*if (UndergroundStartTime)
 	{
 		const float CurrentUndergroundTime = UGameplayStatics::GetUnpausedTimeSeconds(this) - *UndergroundStartTime;
 		if (CurrentUndergroundTime > MaxUndergroundDuration)
 		{
 			UndergroundStartTime.Reset();
-			ToggleBurrow();
+			ToggleBurrowInternal();
 		}
-	}
+	}*/
 
-	if (BurrowAnimationStartTime)
+	// Burrow state transition
 	{
-		const float TimeSinceAnimationStart = FMath::Max(0.0f, UGameplayStatics::GetUnpausedTimeSeconds(this) - *BurrowAnimationStartTime);
-		const float Ratio = TimeSinceAnimationStart / BurrowAnimationDuration;
-
-		AnimationRatio = FMath::Min(Ratio, 1.0f);
-		if (!bIsBurrowed) { AnimationRatio = 1.0f - AnimationRatio; }
-
-		if (Ratio > 1.0f)
+		if (BurrowAnimationStartTime)
 		{
-			BurrowAnimationStartTime.Reset();
+			const float TimeSinceAnimationStart = FMath::Max(0.0f, UGameplayStatics::GetUnpausedTimeSeconds(this) - *BurrowAnimationStartTime);
+			const float Ratio = TimeSinceAnimationStart / (bIsBurrowed ? BurrowAnimationDuration : UnburrowAnimationDuration);
 
-			if (!bIsBurrowed)
+			AnimationRatio = FMath::Min(Ratio, 1.0f);
+			if (!bIsBurrowed) { AnimationRatio = 1.0f - AnimationRatio; }
+
+			if (Ratio > 1.0f)
 			{
-				if (const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this))
+				BurrowAnimationStartTime.Reset();
+
+				if (!bIsBurrowed)
 				{
-					UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->UnburrowSound, GetActorLocation(), GetActorRotation());
+					if (const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this))
+					{
+						UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->UnburrowSound, GetActorLocation(), GetActorRotation());
+					}
 				}
 			}
 		}
+
+		if (MoleRoot)
+		{
+			MoleRoot->SetRelativeLocation(FVector::DownVector * AnimationRatio * BurrowDepth);
+		}
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("%f"), AnimationRatio)
-
-	if (MoleRoot)
+	// Update stun
+	if (StunStartTime)
 	{
-		MoleRoot->SetRelativeLocation(FVector::DownVector * AnimationRatio * BurrowDepth);
+		const float TimeSinceAnimationStart = FMath::Max(0.0f, UGameplayStatics::GetUnpausedTimeSeconds(this) - *StunStartTime);
+		if (TimeSinceAnimationStart > StunDuration)
+		{
+			SetStunnedMaterial(false);
+			StunStartTime.Reset();
+		}
 	}
+
+	const bool bWasInsideForceFeedbackArea = bIsInsideForceFeedbackArea;
+	bIsInsideForceFeedbackArea = [&]
+	{
+		if (FWmGlobals* Globals = FWmGlobals::Get(this))
+		{
+			TOptional<float> minDistSquared;
+			AWmVeggieSpawner* ClosestVeggie = nullptr;
+			for (const TWeakObjectPtr<AWmVeggieSpawner>& Veggie : Globals->VeggieSpawners)
+			{
+				if (Veggie.IsValid())
+				{
+					const float distSquared = FVector::DistSquared2D(GetActorLocation(), Veggie->GetActorLocation());
+					if (distSquared > FMath::Square(ForceFeedbackRadius * 100.0f)) { continue; }
+					if (!minDistSquared || distSquared < *minDistSquared)
+					{
+						minDistSquared = distSquared;
+						ClosestVeggie = Veggie.Get();
+					}
+				}
+			}
+			if (ClosestVeggie)
+			{
+				return true;
+			}
+		}
+		return false;
+	}();
+
+	const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this);
+	APlayerController* PlayerController = Cast<APlayerController>(Controller);
+	if (GlobalsDataAsset && PlayerController)
+	{
+		if (bWasInsideForceFeedbackArea != bIsInsideForceFeedbackArea)
+		{
+			if (bIsInsideForceFeedbackArea)
+			{
+				FForceFeedbackParameters Params;
+				Params.bLooping = true;
+				PlayerController->ClientPlayForceFeedback(GlobalsDataAsset->ForceFeedbackEffect, Params);
+			}
+			else
+			{
+				PlayerController->ClientStopForceFeedback(GlobalsDataAsset->ForceFeedbackEffect, NAME_None);
+			}
+		}
+		if (bIsInsideForceFeedbackArea)
+		{
+
+		}
+	}
+}
+
+bool AWmMoleCharacter::IsTargetable() const
+{
+	return (!bIsBurrowed || BurrowAnimationStartTime) && !IsStunned();
+}
+
+bool AWmMoleCharacter::IsStunned() const
+{
+	return StunStartTime.IsSet();
+}
+
+void AWmMoleCharacter::ApplyStun()
+{
+	StunStartTime = UGameplayStatics::GetUnpausedTimeSeconds(this);
+	SetStunnedMaterial(true);
+	if (bIsBurrowed) { bIsBurrowed = false; }
 }
 
 void AWmMoleCharacter::BeginPlay()
@@ -132,6 +221,7 @@ void AWmMoleCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAxis("MoveRight", this, &AWmMoleCharacter::MoveRight);
 
 	PlayerInputComponent->BindAction("ToggleBurrow", IE_Released, this, &AWmMoleCharacter::ToggleBurrow);
+	PlayerInputComponent->BindAction("PickUp", IE_Released, this, &AWmMoleCharacter::TryPickUp);
 }
 
 /*void AWmGardenerCharacter::Move(const FInputActionValue& Value)
@@ -172,7 +262,7 @@ void AWmGardenerCharacter::Look(const FInputActionValue& Value)
 
 void AWmMoleCharacter::MoveForward(float Value)
 {
-	if (!bIsBurrowed) { return;}
+	if (!bIsBurrowed || IsStunned()) { return;}
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is forward
@@ -187,7 +277,7 @@ void AWmMoleCharacter::MoveForward(float Value)
 
 void AWmMoleCharacter::MoveRight(float Value)
 {
-	if (!bIsBurrowed) { return;}
+	if (!bIsBurrowed || IsStunned()) { return;}
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is right
@@ -203,6 +293,44 @@ void AWmMoleCharacter::MoveRight(float Value)
 
 void AWmMoleCharacter::ToggleBurrow()
 {
+	if (IsStunned()) { return; }
+	ToggleBurrowInternal();
+}
+
+void AWmMoleCharacter::SetStunnedMaterial(bool bStunned)
+{
+	FWmGlobals* Globals = FWmGlobals::Get(this);
+	if (Globals && Globals->GlobalsDataAsset.IsValid())
+	{
+		TArray<UActorComponent*> MeshComponents = GetComponentsByClass(UStaticMeshComponent::StaticClass());
+		for (UActorComponent* C : MeshComponents)
+		{
+			UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(C);
+			if (MeshComponent)
+			{
+				if (bStunned)
+				{
+					CachedMaterials.Add(MeshComponent, MeshComponent->GetMaterial(0));
+					MeshComponent->SetMaterial(0, Globals->GlobalsDataAsset->StunnedMaterial);
+				}
+				else
+				{
+					if (UMaterialInterface** Material = CachedMaterials.Find(MeshComponent))
+					{
+						MeshComponent->SetMaterial(0, *Material);
+					}
+					else
+					{
+						MeshComponent->EmptyOverrideMaterials();
+					}
+				}
+			}
+		}
+	}
+}
+
+void AWmMoleCharacter::ToggleBurrowInternal()
+{
 	if (!BurrowAnimationStartTime)
 	{
 		bIsBurrowed = !bIsBurrowed;
@@ -213,4 +341,33 @@ void AWmMoleCharacter::ToggleBurrow()
 		BurrowAnimationStartTime = UGameplayStatics::GetTimeSeconds(this);
 	}
 }
+
+void AWmMoleCharacter::TryPickUp()
+{
+	if (bIsBurrowed || BurrowAnimationStartTime || IsStunned()) { return; }
+	if (HitBox)
+	{
+		FWmGlobals* Globals = FWmGlobals::Get(this);
+		const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this);
+		if (Globals && GlobalsDataAsset)
+		{
+			TArray<AActor*> OverlappingActors;
+			HitBox->GetOverlappingActors(OverlappingActors);
+			for (AActor* Actor : OverlappingActors)
+			{
+				if (AWmVeggieSpawner* Veggie = Cast<AWmVeggieSpawner>(Actor))
+				{
+					if (TOptional<int32> numPoints = Veggie->TryPick())
+					{
+						Globals->MolePoints += *numPoints;
+						UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->PickUpVeggie, GetActorLocation(), GetActorRotation());
+						UE_LOG(LogTemp, Warning, TEXT("Mole Points: %d"), Globals->MolePoints);
+					}
+				}
+			}
+		}
+	}
+
+}
+
 

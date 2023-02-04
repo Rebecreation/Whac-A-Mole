@@ -15,6 +15,8 @@
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "../DataAsset/WmGlobalsDataAsset.h"
+#include "../Resource/WmGlobals.h"
+#include "WmVeggieSpawner.h"
 
 AWmGardenerCharacter::AWmGardenerCharacter()
 {
@@ -40,6 +42,20 @@ AWmGardenerCharacter::AWmGardenerCharacter()
 
 	HitBox = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HitBox"));
 	HitBox->SetupAttachment(GetRootComponent());
+}
+
+void AWmGardenerCharacter::TickActor(float DeltaTime, ELevelTick TickType, FActorTickFunction& ThisTickFunction)
+{
+	Super::TickActor(DeltaTime, TickType, ThisTickFunction);
+
+	if (LastHitStartTime)
+	{
+		const float TimeSinceLastHit = UGameplayStatics::GetUnpausedTimeSeconds(this) - *LastHitStartTime;
+		if (TimeSinceLastHit > HitCooldown)
+		{
+			LastHitStartTime.Reset();
+		}
+	}
 }
 
 void AWmGardenerCharacter::BeginPlay()
@@ -84,6 +100,7 @@ void AWmGardenerCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 	PlayerInputComponent->BindAxis("MoveRight", this, &AWmGardenerCharacter::MoveRight);
 
 	PlayerInputComponent->BindAction("Hit", IE_Released, this, &AWmGardenerCharacter::Hit);
+	PlayerInputComponent->BindAction("PickUp", IE_Released, this, &AWmGardenerCharacter::TryPickUp);
 }
 
 /*void AWmGardenerCharacter::Move(const FInputActionValue& Value)
@@ -153,6 +170,8 @@ void AWmGardenerCharacter::MoveRight(float Value)
 
 void AWmGardenerCharacter::Hit()
 {
+	if (LastHitStartTime) { return; }
+	LastHitStartTime = UGameplayStatics::GetUnpausedTimeSeconds(this);
 	ApplyHit();
 }
 
@@ -165,16 +184,28 @@ void AWmGardenerCharacter::ApplyHit()
 			TArray<AActor*> OverlappingActors;
 			HitBox->GetOverlappingActors(OverlappingActors);
 			bool bHitMole = false;
+			AWmVeggieSpawner* HitVeggie = nullptr;
 			for (AActor* Actor : OverlappingActors)
 			{
-				if (Actor->IsA<AWmMoleCharacter>())
+				AWmMoleCharacter* Mole = Cast<AWmMoleCharacter>(Actor);
+				if (Mole && Mole->IsTargetable())
 				{
 					bHitMole = true;
+					Mole->ApplyStun();
+				}
+				if (AWmVeggieSpawner* Veggie = Cast<AWmVeggieSpawner>(Actor))
+				{
+					HitVeggie = Veggie;
 				}
 			}
 			if (bHitMole)
 			{
 				UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->HitMole, GetActorLocation(), GetActorRotation());
+			}
+			else if (HitVeggie)
+			{
+				HitVeggie->ApplyHit();
+				UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->HitVeggie, GetActorLocation(), GetActorRotation());
 			}
 			else
 			{
@@ -182,5 +213,32 @@ void AWmGardenerCharacter::ApplyHit()
 			}
 		}
 	}
+}
+
+void AWmGardenerCharacter::TryPickUp()
+{
+	if (HitBox)
+	{
+		FWmGlobals* Globals = FWmGlobals::Get(this);
+		const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this);
+		if (Globals && GlobalsDataAsset)
+		{
+			TArray<AActor*> OverlappingActors;
+			HitBox->GetOverlappingActors(OverlappingActors);
+			for (AActor* Actor : OverlappingActors)
+			{
+				if (AWmVeggieSpawner* Veggie = Cast<AWmVeggieSpawner>(Actor))
+				{
+					if (TOptional<int32> numPoints = Veggie->TryPick())
+					{
+						Globals->GardenerPoints += *numPoints;
+						UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->PickUpVeggie, GetActorLocation(), GetActorRotation());
+						UE_LOG(LogTemp, Warning, TEXT("Gardener Points: %d"), Globals->GardenerPoints);
+					}
+				}
+			}
+		}
+	}
+
 }
 

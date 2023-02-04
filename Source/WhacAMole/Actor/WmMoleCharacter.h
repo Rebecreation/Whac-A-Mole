@@ -7,7 +7,6 @@
 #include "InputActionValue.h"
 #include "WmMoleCharacter.generated.h"
 
-
 UCLASS(config=Game)
 class AWmMoleCharacter : public ACharacter
 {
@@ -17,6 +16,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	class USceneComponent* MoleRoot = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* HitBox = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputMappingContext* DefaultMappingContext;
@@ -37,18 +39,38 @@ private:
 	float BurrowAnimationDuration = 0.2f;
 
 	UPROPERTY(EditAnywhere)
+	float UnburrowAnimationDuration = 0.5f;
+
+	UPROPERTY(EditAnywhere)
 	float MaxUndergroundDuration = 5.0f;
+
+	UPROPERTY(EditAnywhere)
+	float StunDuration = 2.0f;
+
+	UPROPERTY(EditAnywhere)
+	float ForceFeedbackRadius = 1.0f;
 
 	TOptional<float> BurrowAnimationStartTime;
 	TOptional<float> UndergroundStartTime = 0.0f;
+	TOptional<float> StunStartTime;
 
 	bool bIsBurrowed = true;
+
+	bool bIsInsideForceFeedbackArea = false;
+
+	UPROPERTY()
+	TMap<class UStaticMeshComponent*, UMaterialInterface*> CachedMaterials;
 
 public:
 
 	AWmMoleCharacter();
 
 	virtual void TickActor(float DeltaTime, ELevelTick TickType, FActorTickFunction& ThisTickFunction) override;
+
+	bool IsTargetable() const;
+	bool IsStunned() const;
+
+	void ApplyStun();
 	
 protected:
 
@@ -65,6 +87,10 @@ protected:
 	void MoveRight(float Value);
 
 	void ToggleBurrow();
+	void ToggleBurrowInternal();
 
+	void TryPickUp();
+
+	void SetStunnedMaterial(bool bStunned);
 };
 

@@ -15,6 +15,9 @@ class AWmGardenerCharacter : public ACharacter
 
 private:
 
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* HitBox = nullptr;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputMappingContext* DefaultMappingContext;
 
@@ -46,6 +49,8 @@ protected:
 	void MoveRight(float Value);
 
 	void Hit();
+
+	void ApplyHit();
 
 };
 

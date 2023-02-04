@@ -1,9 +1,11 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "WmGardenerCharacter.h"
+#include "WmMoleCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -35,6 +37,9 @@ AWmGardenerCharacter::AWmGardenerCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 500.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+
+	HitBox = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HitBox"));
+	HitBox->SetupAttachment(GetRootComponent());
 }
 
 void AWmGardenerCharacter::BeginPlay()
@@ -148,9 +153,34 @@ void AWmGardenerCharacter::MoveRight(float Value)
 
 void AWmGardenerCharacter::Hit()
 {
-	if (const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this))
+	ApplyHit();
+}
+
+void AWmGardenerCharacter::ApplyHit()
+{
+	if (HitBox)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->HitEmpty, GetActorLocation(), GetActorRotation());
+		if (const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this))
+		{
+			TArray<AActor*> OverlappingActors;
+			HitBox->GetOverlappingActors(OverlappingActors);
+			bool bHitMole = false;
+			for (AActor* Actor : OverlappingActors)
+			{
+				if (Actor->IsA<AWmMoleCharacter>())
+				{
+					bHitMole = true;
+				}
+			}
+			if (bHitMole)
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->HitMole, GetActorLocation(), GetActorRotation());
+			}
+			else
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->HitEmpty, GetActorLocation(), GetActorRotation());
+			}
+		}
 	}
 }
 

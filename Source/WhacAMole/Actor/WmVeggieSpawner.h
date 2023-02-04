@@ -11,13 +11,13 @@ struct FWmVeggieData
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	UStaticMesh* VeggieMesh = nullptr;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	int32 PointValue = 1;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	float MaxScale = 1.0f;
 };
 
@@ -34,13 +34,11 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	class UStaticMeshComponent* VeggieMesh;
 
-	UPROPERTY(EditAnywhere)
-	float MaxVeggieScale = 1.0f;
-
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	TArray<FWmVeggieData> Veggies;
 
-	TOptional<int32> CurrentVeggieIndex;
+	UPROPERTY(Transient, BlueprintReadWrite)
+	int32 CurrentVeggieIndex;
 
 	// Sets default values for this actor's properties
 	AWmVeggieSpawner();
@@ -54,5 +52,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void ApplyHit();
-	TOptional<int32> TryPick();
+
+	UFUNCTION(BlueprintCallable)
+	int32 TryPick();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnPicked();
 };

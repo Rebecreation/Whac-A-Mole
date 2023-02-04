@@ -21,9 +21,9 @@ void AWmVeggieSpawner::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (Veggies.Num() == 0) { return; }
+	/*if (Veggies.Num() == 0) { return; }
 	CurrentVeggieIndex = FMath::RandRange(0, Veggies.Num() - 1);
-	FWmVeggieData& VeggieData = Veggies[*CurrentVeggieIndex];
+	FWmVeggieData& VeggieData = Veggies[CurrentVeggieIndex];
 
 	if (VeggieMesh)
 	{
@@ -35,7 +35,7 @@ void AWmVeggieSpawner::BeginPlay()
 	if (ensure(Globals))
 	{
 		Globals->VeggieSpawners.Add(this);
-	}
+	}*/
 }
 
 // Called every frame
@@ -47,20 +47,25 @@ void AWmVeggieSpawner::Tick(float DeltaTime)
 
 void AWmVeggieSpawner::ApplyHit()
 {
-	if (CurrentVeggieIndex)
+	if (CurrentVeggieIndex != INDEX_NONE)
 	{
 		VeggieMesh->SetVisibility(false);
 	}
 }
 
-TOptional<int32> AWmVeggieSpawner::TryPick()
+int32 AWmVeggieSpawner::TryPick()
 {
-	if (CurrentVeggieIndex && VeggieMesh->IsVisible())
+	if (CurrentVeggieIndex != INDEX_NONE && VeggieMesh->IsVisible())
 	{
 		VeggieMesh->SetVisibility(false);
-		const FWmVeggieData& VeggieData = Veggies[*CurrentVeggieIndex];
-		return VeggieData.PointValue;
+		const FWmVeggieData& VeggieData = Veggies[CurrentVeggieIndex];
+		CurrentVeggieIndex = INDEX_NONE;
+		int32 Result = VeggieData.PointValue;
+		OnPicked();
+		return Result;
 	}
-	return {};
+	return INDEX_NONE;
 }
+
+void AWmVeggieSpawner::OnPicked_Implementation() {}
 

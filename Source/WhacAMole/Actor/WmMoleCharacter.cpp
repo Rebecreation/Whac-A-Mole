@@ -110,13 +110,13 @@ void AWmMoleCharacter::TickActor(float DeltaTime, ELevelTick TickType, FActorTic
 		}
 	}
 
+	AWmVeggieSpawner* ClosestVeggie = nullptr;
 	const bool bWasInsideForceFeedbackArea = bIsInsideForceFeedbackArea;
 	bIsInsideForceFeedbackArea = [&]
 	{
 		if (FWmGlobals* Globals = FWmGlobals::Get(this))
 		{
 			TOptional<float> minDistSquared;
-			AWmVeggieSpawner* ClosestVeggie = nullptr;
 			for (const TWeakObjectPtr<AWmVeggieSpawner>& Veggie : Globals->VeggieSpawners)
 			{
 				if (Veggie.IsValid())
@@ -157,7 +157,8 @@ void AWmMoleCharacter::TickActor(float DeltaTime, ELevelTick TickType, FActorTic
 		}
 		if (bIsInsideForceFeedbackArea)
 		{
-
+			const float feedbackScale = (ForceFeedbackRadius * 100.0f - FVector::Dist2D(GetActorLocation(), ClosestVeggie->GetActorLocation())) / (ForceFeedbackRadius * 100.0f);
+			PlayerController->ForceFeedbackScale = feedbackScale;
 		}
 	}
 }
@@ -357,9 +358,10 @@ void AWmMoleCharacter::TryPickUp()
 			{
 				if (AWmVeggieSpawner* Veggie = Cast<AWmVeggieSpawner>(Actor))
 				{
-					if (TOptional<int32> numPoints = Veggie->TryPick())
+					int32 numPoints = Veggie->TryPick();
+					if (numPoints != INDEX_NONE)
 					{
-						Globals->MolePoints += *numPoints;
+						Globals->MolePoints += numPoints;
 						UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->PickUpVeggie, GetActorLocation(), GetActorRotation());
 						UE_LOG(LogTemp, Warning, TEXT("Mole Points: %d"), Globals->MolePoints);
 					}

@@ -229,9 +229,10 @@ void AWmGardenerCharacter::TryPickUp()
 			{
 				if (AWmVeggieSpawner* Veggie = Cast<AWmVeggieSpawner>(Actor))
 				{
-					if (TOptional<int32> numPoints = Veggie->TryPick())
+					int32 numPoints = Veggie->TryPick();
+					if (numPoints != INDEX_NONE)
 					{
-						Globals->GardenerPoints += *numPoints;
+						Globals->GardenerPoints += numPoints;
 						UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->PickUpVeggie, GetActorLocation(), GetActorRotation());
 						UE_LOG(LogTemp, Warning, TEXT("Gardener Points: %d"), Globals->GardenerPoints);
 					}

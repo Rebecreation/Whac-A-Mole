@@ -18,7 +18,9 @@ void FWmCharacterSystems::CreateCharacters(FArcUniverse& Universe, FArcRes<FArcC
 	const UWmGlobalsDataAsset* GlobalsDataAsset = Globals->GlobalsDataAsset.Get();
 	if (GlobalsDataAsset && GlobalsDataAsset->MoleClass)
 	{
-		ACharacter* Mole = World->SpawnActor<ACharacter>(GlobalsDataAsset->MoleClass, FTransform::Identity);
+		FActorSpawnParameters Params;
+		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		ACharacter* Mole = World->SpawnActor<ACharacter>(GlobalsDataAsset->MoleClass, FTransform::Identity, Params);
 		MoleController->Possess(Mole);
 	}
 }

@@ -4,15 +4,15 @@
 
 namespace FWmCollisionChannel
 {
-	//const ECollisionChannel Structure = ECC_GameTraceChannel1;
-	//const ECollisionChannel PlacementMultiTrace = ECC_GameTraceChannel2;
+	//const ECollisionChannel Gardener = ECC_GameTraceChannel1;
+	//const ECollisionChannel Mole = ECC_GameTraceChannel2;
 }
 
 namespace FWmCollisionProfile
 {
 	const FName NoCollision = TEXT("NoCollision");
 	
-	const FName Gardener = TEXT("WmGardener");
-	const FName Mole = TEXT("WmGardenerHit");
-	const FName Mole = TEXT("WmMole");
+	//const FName Gardener = TEXT("WmGardener");
+	//const FName GardenerHit = TEXT("WmGardenerHit");
+	//const FName Mole = TEXT("WmMole");
 }

@@ -36,7 +36,11 @@ private:
 	UPROPERTY(EditAnywhere)
 	float BurrowAnimationDuration = 0.2f;
 
+	UPROPERTY(EditAnywhere)
+	float MaxUndergroundDuration = 5.0f;
+
 	TOptional<float> BurrowAnimationStartTime;
+	TOptional<float> UndergroundStartTime = 0.0f;
 
 	bool bIsBurrowed = true;
 

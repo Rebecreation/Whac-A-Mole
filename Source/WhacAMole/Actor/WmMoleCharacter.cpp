@@ -46,6 +46,20 @@ void AWmMoleCharacter::TickActor(float DeltaTime, ELevelTick TickType, FActorTic
 
 	float AnimationRatio = bIsBurrowed ? 1.0f : 0.0f;
 
+	if (bIsBurrowed && !BurrowAnimationStartTime && !UndergroundStartTime)
+	{
+		UndergroundStartTime = UGameplayStatics::GetUnpausedTimeSeconds(this);
+	}
+	if (UndergroundStartTime)
+	{
+		const float CurrentUndergroundTime = UGameplayStatics::GetUnpausedTimeSeconds(this) - *UndergroundStartTime;
+		if (CurrentUndergroundTime > MaxUndergroundDuration)
+		{
+			UndergroundStartTime.Reset();
+			ToggleBurrow();
+		}
+	}
+
 	if (BurrowAnimationStartTime)
 	{
 		const float TimeSinceAnimationStart = FMath::Max(0.0f, UGameplayStatics::GetUnpausedTimeSeconds(this) - *BurrowAnimationStartTime);
@@ -192,6 +206,10 @@ void AWmMoleCharacter::ToggleBurrow()
 	if (!BurrowAnimationStartTime)
 	{
 		bIsBurrowed = !bIsBurrowed;
+		if (!bIsBurrowed)
+		{
+			UndergroundStartTime.Reset();
+		}
 		BurrowAnimationStartTime = UGameplayStatics::GetTimeSeconds(this);
 	}
 }

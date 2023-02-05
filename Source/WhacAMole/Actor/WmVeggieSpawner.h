@@ -21,10 +21,10 @@ struct FWmVeggieData
 	float MaxScale = 1.0f;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	Vector2D DormantTime = { 1.f, 5.f };
+	FVector2D DormantTime = { 1.f, 5.f };
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	Vector2D AutopickTime =  { 1.f, 5.f };
+	FVector2D AutopickTime =  { 1.f, 5.f };
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float GrowSpeed = 0.1f;

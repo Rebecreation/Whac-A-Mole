@@ -12,6 +12,8 @@ struct FWmGlobals
     TWeakObjectPtr<class AWmGardenerCharacter> Gardener = nullptr;
     TWeakObjectPtr<class AWmMoleCharacter> Mole = nullptr;
 
+    TWeakObjectPtr<UUserWidget> WinScreen = nullptr;
+
     TArray<TWeakObjectPtr<class AWmVeggieSpawner>> VeggieSpawners;
 
     static FWmGlobals* Get(const UObject* Context);

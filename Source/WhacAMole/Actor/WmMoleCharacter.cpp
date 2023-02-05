@@ -375,30 +375,21 @@ void AWmMoleCharacter::ToggleBurrowInternal()
 void AWmMoleCharacter::TryPickUp()
 {
 	if (bIsBurrowed || BurrowAnimationStartTime || IsStunned()) { return; }
-	if (HitBox)
+	if (ClosestVeggie && FVector::DistSquared2D(GetActorLocation(), ClosestVeggie->GetActorLocation()) < FMath::Square(PickUpRadius))
 	{
 		FWmGlobals* Globals = FWmGlobals::Get(this);
 		const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this);
 		if (Globals && GlobalsDataAsset)
 		{
-			TArray<AActor*> OverlappingActors;
-			HitBox->GetOverlappingActors(OverlappingActors);
-			for (AActor* Actor : OverlappingActors)
+			int32 numPoints = ClosestVeggie->TryPickMole();
+			if (numPoints != INDEX_NONE)
 			{
-				if (AWmVeggieSpawner* Veggie = Cast<AWmVeggieSpawner>(Actor))
-				{
-					int32 numPoints = Veggie->TryPickMole();
-					if (numPoints != INDEX_NONE)
-					{
-						Globals->MolePoints += numPoints;
-						UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->PickUpVeggie, GetActorLocation(), GetActorRotation());
-						UE_LOG(LogTemp, Warning, TEXT("Mole Points: %d"), Globals->MolePoints);
-					}
-				}
+				Globals->MolePoints += numPoints;
+				UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->PickUpVeggie, GetActorLocation(), GetActorRotation());
+				UE_LOG(LogTemp, Warning, TEXT("Mole Points: %d"), Globals->MolePoints);
 			}
 		}
 	}
-
 }
 
 

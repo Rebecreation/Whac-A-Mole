@@ -25,11 +25,15 @@ void FWmCoreSystems::EvaluateGameOverCondition(FArcRes<FArcCoreData> CoreData, F
 	const UWmGlobalsDataAsset* GlobalsDataAsset = Globals->GlobalsDataAsset.Get();
 	if (!PlayerController || !GlobalsDataAsset || !Globals->GameStartTime || !GlobalsDataAsset->WinScreenWidget) { return; }
 	const bool bEndGame = UGameplayStatics::GetUnpausedTimeSeconds(World) - *Globals->GameStartTime > GlobalsDataAsset->GameDuration;
-	if (bEndGame)
+	if (bEndGame && !Globals->WinScreen.IsValid())
 	{
 		UUserWidget* WinScreen = CreateWidget<UUserWidget>(PlayerController, GlobalsDataAsset->WinScreenWidget);
 		WinScreen->AddToViewport(1);
 		PlayerController->SetShowMouseCursor(true);
+		FInputModeGameAndUI Mode = FInputModeGameAndUI();
+		Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		PlayerController->SetInputMode(Mode);
+		Globals->WinScreen = WinScreen;
 	}
 }
 

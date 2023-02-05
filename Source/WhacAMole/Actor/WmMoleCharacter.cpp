@@ -365,6 +365,10 @@ void AWmMoleCharacter::ToggleBurrowInternal()
 				if (distanceSq < FMath::Square(StunRadius))
 				{
 					Gardener->ApplyStun();
+                    if (const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this))
+                    {
+                        UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->HitGardener, GetActorLocation(), GetActorRotation());
+                    }
 				}
 			}
 		}

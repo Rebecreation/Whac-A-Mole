@@ -365,6 +365,10 @@ void AWmMoleCharacter::ToggleBurrowInternal()
 				if (distanceSq < FMath::Square(StunRadius))
 				{
 					Gardener->ApplyStun();
+                    if (const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this))
+                    {
+                        UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->HitGardener, GetActorLocation(), GetActorRotation());
+                    }
 				}
 			}
 		}
@@ -385,7 +389,7 @@ void AWmMoleCharacter::TryPickUp()
 			if (numPoints != INDEX_NONE)
 			{
 				Globals->MolePoints += numPoints;
-				UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->PickUpVeggie, GetActorLocation(), GetActorRotation());
+				UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->MolePickUpVeggie, GetActorLocation(), GetActorRotation());
 				UE_LOG(LogTemp, Warning, TEXT("Mole Points: %d"), Globals->MolePoints);
 			}
 		}

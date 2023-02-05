@@ -201,10 +201,6 @@ void AWmGardenerCharacter::Hit()
 	if (LastHitStartTime) { return; }
 	LastHitStartTime = UGameplayStatics::GetUnpausedTimeSeconds(this);
 	ApplyHit();
-	if (const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this))
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->HitGardener, GetActorLocation(), GetActorRotation());
-	}
 }
 
 void AWmGardenerCharacter::ApplyHit()

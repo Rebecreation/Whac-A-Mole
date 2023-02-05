@@ -23,11 +23,24 @@ void FWmCoreSystems::EvaluateGameOverCondition(FArcRes<FArcCoreData> CoreData, F
 	UWorld* World = CoreData->World.Get();
 	APlayerController* PlayerController = World ? World->GetFirstPlayerController() : nullptr;
 	const UWmGlobalsDataAsset* GlobalsDataAsset = Globals->GlobalsDataAsset.Get();
-	if (!PlayerController || !GlobalsDataAsset || !Globals->GameStartTime || !GlobalsDataAsset->WinScreenWidget) { return; }
-	const bool bEndGame = UGameplayStatics::GetUnpausedTimeSeconds(World) - *Globals->GameStartTime > GlobalsDataAsset->GameDuration;
+	if (!PlayerController || !GlobalsDataAsset || !Globals->GameStartTime || !GlobalsDataAsset->WinScreenFarmer || !GlobalsDataAsset->WinScreenMole) { return; }
+	const bool bEndGame = [&]
+	{
+		const bool bDurationExceeded = UGameplayStatics::GetUnpausedTimeSeconds(World) - *Globals->GameStartTime > GlobalsDataAsset->GameDuration;
+		if (bDurationExceeded)
+		{
+			if (Globals->GardenerPoints == Globals->MolePoints)
+			{
+				*Globals->GameStartTime += 15;
+				return false;
+			}
+			return true;
+		}
+		return false;
+	}();
 	if (bEndGame && !Globals->WinScreen.IsValid())
 	{
-		UUserWidget* WinScreen = CreateWidget<UUserWidget>(PlayerController, GlobalsDataAsset->WinScreenWidget);
+		UUserWidget* WinScreen = CreateWidget<UUserWidget>(PlayerController, Globals->GardenerPoints > Globals->MolePoints ? GlobalsDataAsset->WinScreenFarmer : GlobalsDataAsset->WinScreenMole);
 		WinScreen->AddToViewport(1);
 		PlayerController->SetShowMouseCursor(true);
 		FInputModeGameAndUI Mode = FInputModeGameAndUI();

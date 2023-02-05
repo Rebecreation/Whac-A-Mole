@@ -54,7 +54,10 @@ public:
 	int32 GameDuration = 60;
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UUserWidget> WinScreenWidget = nullptr;
+	TSubclassOf<UUserWidget> WinScreenFarmer = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget> WinScreenMole = nullptr;
 
 public:
 

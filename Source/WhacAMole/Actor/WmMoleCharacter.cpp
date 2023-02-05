@@ -384,9 +384,22 @@ void AWmMoleCharacter::TryPickUp()
 			int32 numPoints = ClosestVeggie->TryPickMole();
 			if (numPoints != INDEX_NONE)
 			{
+<<<<<<< HEAD
 				Globals->MolePoints += numPoints;
 				UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->PickUpVeggie, GetActorLocation(), GetActorRotation());
 				UE_LOG(LogTemp, Warning, TEXT("Mole Points: %d"), Globals->MolePoints);
+=======
+				if (AWmVeggieSpawner* Veggie = Cast<AWmVeggieSpawner>(Actor))
+				{
+					int32 numPoints = Veggie->TryPickMole();
+					if (numPoints != INDEX_NONE)
+					{
+						Globals->MolePoints += numPoints;
+						UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->MolePickUpVeggie, GetActorLocation(), GetActorRotation());
+						UE_LOG(LogTemp, Warning, TEXT("Mole Points: %d"), Globals->MolePoints);
+					}
+				}
+>>>>>>> ada8a9d4726590bcbf0c6fdd9a0a073195d855a8
 			}
 		}
 	}

@@ -30,7 +30,6 @@ void AWmGameState::ResetLevel()
 		Globals->GameStartTime = UGameplayStatics::GetUnpausedTimeSeconds(this);
 		Globals->GardenerPoints = 0;
 		Globals->MolePoints = 0;
-		Globals->VeggieSpawners.Reset();
 	}
 }
 

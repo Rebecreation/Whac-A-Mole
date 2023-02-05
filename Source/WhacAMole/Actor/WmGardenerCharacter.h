@@ -45,6 +45,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	float StunImmunityDuration = 4.0f;
 
+	UPROPERTY(EditAnywhere)
+		float FeedbackRadius = 200.0f;
+
 	TOptional<float> LastHitStartTime;
 
 	TOptional<float> StunStartTime;

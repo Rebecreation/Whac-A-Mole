@@ -77,35 +77,37 @@ void AWmVeggieSpawner::SetWobbleAmount(float WobbleAmount)
 
 int32 AWmVeggieSpawner::TryPick()
 {
-	if (CurrentVeggieIndex != INDEX_NONE && VeggieMesh->IsVisible())
+	if (!bIsDisabled)
 	{
-		VeggieMesh->SetVisibility(false);
-		const FWmVeggieData& VeggieData = Veggies[CurrentVeggieIndex];
-		CurrentVeggieIndex = INDEX_NONE;
-		int32 Result = VeggieData.PointValue;
-		if (FWmGlobals* Globals = FWmGlobals::Get(this))
+		if (CurrentVeggieIndex != INDEX_NONE && VeggieMesh->IsVisible())
 		{
-			Globals->GardenerPoints += Result;
+			VeggieMesh->SetVisibility(false);
+			const FWmVeggieData& VeggieData = Veggies[CurrentVeggieIndex];
+			CurrentVeggieIndex = INDEX_NONE;
+			int32 Result = VeggieData.PointValue;
+			if (FWmGlobals* Globals = FWmGlobals::Get(this))
+			{
+				Globals->GardenerPoints += Result;
+			}
+			OnPicked();
+			return Result;
 		}
-		OnPicked();
-		return Result;
 	}
+
 	return INDEX_NONE;
 }
 
 int32 AWmVeggieSpawner::TryPickMole()
 {
-	if (CurrentVeggieIndex != INDEX_NONE && VeggieMesh->IsVisible())
+	if (CurrentVeggieIndex != INDEX_NONE && VeggieMesh->IsVisible() && !bIsDisabled)
 	{
-		VeggieMesh->SetVisibility(false);
-		const FWmVeggieData& VeggieData = Veggies[CurrentVeggieIndex];
-		CurrentVeggieIndex = INDEX_NONE;
-		int32 Result = VeggieData.PointValue;
-		OnPicked();
-		return Result;
+		OnDisabled();
+		return Veggies[CurrentVeggieIndex].PointValue;
 	}
 	return INDEX_NONE;
 }
 
 void AWmVeggieSpawner::OnPicked_Implementation() {}
+void AWmVeggieSpawner::OnDisabled_Implementation() {}
+void AWmVeggieSpawner::OnReenable_Implementation() {}
 

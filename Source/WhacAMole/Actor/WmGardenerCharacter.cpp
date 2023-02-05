@@ -263,31 +263,30 @@ bool AWmGardenerCharacter::IsStunned() const
 
 void AWmGardenerCharacter::TryPickUp()
 {
-	/*if (IsStunned()) { return; }
-	if (HitBox)
+	if (IsStunned()) { return; }
+
+	AWmVeggieSpawner* Result = nullptr;
+	if (FWmGlobals* Globals = FWmGlobals::Get(this))
 	{
-		FWmGlobals* Globals = FWmGlobals::Get(this);
-		const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this);
-		if (Globals && GlobalsDataAsset)
+		TOptional<float> minDistSquared;
+		for (const TWeakObjectPtr<AWmVeggieSpawner>& Veggie : Globals->VeggieSpawners)
 		{
-			TArray<AActor*> OverlappingActors;
-			HitBox->GetOverlappingActors(OverlappingActors);
-			for (AActor* Actor : OverlappingActors)
+			if (Veggie.IsValid())
 			{
-				if (AWmVeggieSpawner* Veggie = Cast<AWmVeggieSpawner>(Actor))
+				const float distSquared = FVector::DistSquared2D(GetActorLocation(), Veggie->GetActorLocation());
+				if (distSquared > FMath::Square(FeedbackRadius)) { continue; }
+				if (!minDistSquared || distSquared < *minDistSquared)
 				{
-					int32 numPoints = Veggie->TryPick();
-					if (numPoints != INDEX_NONE)
-					{
-						Globals->GardenerPoints += numPoints;
-						UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->PickUpVeggie, GetActorLocation(), GetActorRotation());
-						UE_LOG(LogTemp, Warning, TEXT("Gardener Points: %d"), Globals->GardenerPoints);
-					}
+					minDistSquared = distSquared;
+					Result = Veggie.Get();
 				}
 			}
 		}
-	}*/
-
+	}
+	if (Result != nullptr && Result->bIsDisabled)
+	{
+		Result->OnReenable();
+	}
 }
 
 void AWmGardenerCharacter::SetStunnedMaterial(bool bStunned)

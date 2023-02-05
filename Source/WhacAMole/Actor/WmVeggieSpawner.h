@@ -27,6 +27,9 @@ struct FWmVeggieData
 	FVector2D AutopickTime =  { 1.f, 5.f };
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FVector2D DisableTime = { 1.f, 5.f };
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float GrowSpeed = 0.1f;
 };
 
@@ -77,4 +80,11 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent)
 	void OnPicked();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnDisabled();
+	UFUNCTION(BlueprintNativeEvent)
+	void OnReenable();
+	UPROPERTY(Transient, BlueprintReadWrite)
+	bool bIsDisabled = false;
 };

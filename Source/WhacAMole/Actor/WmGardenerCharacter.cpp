@@ -209,8 +209,9 @@ void AWmGardenerCharacter::ApplyHit()
 			}
 			else
 			{
-				UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->HitEmpty, GetActorLocation(), GetActorRotation());
-			}
+                float fPitch = Mathf::RandRange(.8f,2f);
+                UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->HitEmpty, GetActorLocation(), GetActorRotation(), fPitch);
+            }
 		}
 	}
 }

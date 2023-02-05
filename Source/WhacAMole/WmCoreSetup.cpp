@@ -10,4 +10,7 @@ void FWmCoreSetup::Setup(FArcUniverse& Universe, FArcScheduleBuilder& InitSchedu
 
 	InitScheduleBuilder
 		.AddSystem(&FWmCoreSystems::LoadGlobals);
+
+	TickScheduleBuilder
+		.AddSystem(&FWmCoreSystems::EvaluateGameOverCondition);
 }

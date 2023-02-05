@@ -83,6 +83,24 @@ int32 AWmVeggieSpawner::TryPick()
 		const FWmVeggieData& VeggieData = Veggies[CurrentVeggieIndex];
 		CurrentVeggieIndex = INDEX_NONE;
 		int32 Result = VeggieData.PointValue;
+		if (FWmGlobals* Globals = FWmGlobals::Get(this))
+		{
+			Globals->GardenerPoints += Result;
+		}
+		OnPicked();
+		return Result;
+	}
+	return INDEX_NONE;
+}
+
+int32 AWmVeggieSpawner::TryPickMole()
+{
+	if (CurrentVeggieIndex != INDEX_NONE && VeggieMesh->IsVisible())
+	{
+		VeggieMesh->SetVisibility(false);
+		const FWmVeggieData& VeggieData = Veggies[CurrentVeggieIndex];
+		CurrentVeggieIndex = INDEX_NONE;
+		int32 Result = VeggieData.PointValue;
 		OnPicked();
 		return Result;
 	}

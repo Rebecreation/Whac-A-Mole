@@ -56,6 +56,25 @@ void AWmGardenerCharacter::TickActor(float DeltaTime, ELevelTick TickType, FActo
 			LastHitStartTime.Reset();
 		}
 	}
+
+	// Update stun
+	if (StunStartTime)
+	{
+		const float TimeSinceAnimationStart = FMath::Max(0.0f, UGameplayStatics::GetUnpausedTimeSeconds(this) - *StunStartTime);
+		if (TimeSinceAnimationStart > StunDuration)
+		{
+			SetStunnedMaterial(false);
+			StunStartTime.Reset();
+		}
+	}
+	else if (StunImmunityStartTime)
+	{
+		const float TimeSinceAnimationStart = FMath::Max(0.0f, UGameplayStatics::GetUnpausedTimeSeconds(this) - *StunImmunityStartTime);
+		if (TimeSinceAnimationStart > StunImmunityDuration)
+		{
+			StunImmunityStartTime.Reset();
+		}
+	}
 }
 
 void AWmGardenerCharacter::BeginPlay()
@@ -75,6 +94,12 @@ void AWmGardenerCharacter::BeginPlay()
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}*/
+	}
+
+	FWmGlobals* Globals = FWmGlobals::Get(this);
+	if (ensure(Globals))
+	{
+		Globals->Gardener = this;
 	}
 }
 
@@ -141,6 +166,7 @@ void AWmGardenerCharacter::Look(const FInputActionValue& Value)
 
 void AWmGardenerCharacter::MoveForward(float Value)
 {
+	if (IsStunned()) { return; }
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is forward
@@ -155,6 +181,7 @@ void AWmGardenerCharacter::MoveForward(float Value)
 
 void AWmGardenerCharacter::MoveRight(float Value)
 {
+	if (IsStunned()) { return; }
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is right
@@ -170,6 +197,7 @@ void AWmGardenerCharacter::MoveRight(float Value)
 
 void AWmGardenerCharacter::Hit()
 {
+	if (IsStunned()) { return; }
 	if (LastHitStartTime) { return; }
 	LastHitStartTime = UGameplayStatics::GetUnpausedTimeSeconds(this);
 	ApplyHit();
@@ -216,8 +244,22 @@ void AWmGardenerCharacter::ApplyHit()
 	}
 }
 
+void AWmGardenerCharacter::ApplyStun()
+{
+	if (StunImmunityStartTime) { return; }
+
+	StunStartTime = StunImmunityStartTime = UGameplayStatics::GetUnpausedTimeSeconds(this);
+	SetStunnedMaterial(true);
+}
+
+bool AWmGardenerCharacter::IsStunned() const
+{
+	return StunStartTime.IsSet();
+}
+
 void AWmGardenerCharacter::TryPickUp()
 {
+	/*if (IsStunned()) { return; }
 	if (HitBox)
 	{
 		FWmGlobals* Globals = FWmGlobals::Get(this);
@@ -240,7 +282,64 @@ void AWmGardenerCharacter::TryPickUp()
 				}
 			}
 		}
-	}
+	}*/
 
 }
+
+void AWmGardenerCharacter::SetStunnedMaterial(bool bStunned)
+{
+	FWmGlobals* Globals = FWmGlobals::Get(this);
+	if (Globals && Globals->GlobalsDataAsset.IsValid())
+	{
+		TArray<UActorComponent*> MeshComponents = GetComponentsByClass(UStaticMeshComponent::StaticClass());
+		for (UActorComponent* C : MeshComponents)
+		{
+			if (UStaticMeshComponent* MeshComponent = Cast<UStaticMeshComponent>(C))
+			{
+				if (bStunned)
+				{
+					CachedMaterials.Add(MeshComponent, MeshComponent->GetMaterial(0));
+					MeshComponent->SetMaterial(0, Globals->GlobalsDataAsset->StunnedMaterial);
+				}
+				else
+				{
+					if (UMaterialInterface** Material = CachedMaterials.Find(MeshComponent))
+					{
+						MeshComponent->SetMaterial(0, *Material);
+					}
+					else
+					{
+						MeshComponent->EmptyOverrideMaterials();
+					}
+				}
+			}
+		}
+		TArray<UActorComponent*> SkMeshComponents = GetComponentsByClass(USkeletalMeshComponent::StaticClass());
+		for (UActorComponent* C : SkMeshComponents)
+		{
+
+			if (USkeletalMeshComponent* MeshComponent = Cast<USkeletalMeshComponent>(C))
+			{
+				if (bStunned)
+				{
+					CachedMaterials.Add(MeshComponent, MeshComponent->GetMaterial(0));
+					MeshComponent->SetMaterial(0, Globals->GlobalsDataAsset->StunnedMaterial);
+				}
+				else
+				{
+					if (UMaterialInterface** Material = CachedMaterials.Find(MeshComponent))
+					{
+						MeshComponent->SetMaterial(0, *Material);
+					}
+					else
+					{
+						MeshComponent->EmptyOverrideMaterials();
+					}
+				}
+			}
+
+		}
+	}
+}
+
 

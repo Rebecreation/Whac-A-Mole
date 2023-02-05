@@ -73,6 +73,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int32 TryPick();
 
+	int32 TryPickMole();
+
 	UFUNCTION(BlueprintNativeEvent)
 	void OnPicked();
 };

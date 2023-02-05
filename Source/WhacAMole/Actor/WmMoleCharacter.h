@@ -53,6 +53,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	float PickUpRadius = 100.0f;
 
+	UPROPERTY(EditAnywhere)
+	float StunRadius = 100.0f;
+
 	TOptional<float> BurrowAnimationStartTime;
 	TOptional<float> UndergroundStartTime = 0.0f;
 	TOptional<float> StunStartTime;

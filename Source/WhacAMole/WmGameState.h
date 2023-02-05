@@ -21,5 +21,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	int32 GetMolePoints() const;
+
+	UFUNCTION(BlueprintCallable)
+	void ResetLevel();
 	
+	UFUNCTION(BlueprintCallable)
+	FString GetTimerString() const;
+
 };

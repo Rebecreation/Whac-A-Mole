@@ -201,6 +201,7 @@ void AWmGardenerCharacter::Hit()
 	if (LastHitStartTime) { return; }
 	LastHitStartTime = UGameplayStatics::GetUnpausedTimeSeconds(this);
 	ApplyHit();
+    UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->HitGardener, GetActorLocation(), GetActorRotation());
 }
 
 void AWmGardenerCharacter::ApplyHit()

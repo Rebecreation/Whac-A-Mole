@@ -48,7 +48,10 @@ private:
 	float StunDuration = 2.0f;
 
 	UPROPERTY(EditAnywhere)
-	float ForceFeedbackRadius = 1.0f;
+	float FeedbackRadius = 200.0f;
+
+	UPROPERTY(EditAnywhere)
+	float PickUpRadius = 100.0f;
 
 	TOptional<float> BurrowAnimationStartTime;
 	TOptional<float> UndergroundStartTime = 0.0f;
@@ -56,10 +59,18 @@ private:
 
 	bool bIsBurrowed = true;
 
-	bool bIsInsideForceFeedbackArea = false;
+	//bool bIsInsideForceFeedbackArea = false;
 
 	UPROPERTY()
 	TMap<class UStaticMeshComponent*, UMaterialInterface*> CachedMaterials;
+
+	UPROPERTY()
+	class AWmVeggieSpawner* ClosestVeggie = nullptr;
+
+	//bool bWasInsideForceFeedbackArea = false;
+
+	//UPROPERTY()
+	//class AWmVeggieSpawner* CurrentlyWobblingVeggie = nullptr;
 
 public:
 
@@ -92,5 +103,7 @@ protected:
 	void TryPickUp();
 
 	void SetStunnedMaterial(bool bStunned);
+
+	class AWmVeggieSpawner* CalculateClosestVeggie(float MaxDistance) const;
 };
 

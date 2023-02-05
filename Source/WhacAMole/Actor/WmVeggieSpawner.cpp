@@ -2,6 +2,7 @@
 
 #include "WmVeggieSpawner.h"
 #include "../Resource/WmGlobals.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AWmVeggieSpawner::AWmVeggieSpawner()
@@ -29,13 +30,13 @@ void AWmVeggieSpawner::BeginPlay()
 	{
 		VeggieMesh->SetStaticMesh(VeggieData.VeggieMesh);
 		VeggieMesh->SetRelativeScale3D(FVector(VeggieData.MaxScale));
-	}
+	}*/
 
 	FWmGlobals* Globals = FWmGlobals::Get(this);
 	if (ensure(Globals))
 	{
 		Globals->VeggieSpawners.Add(this);
-	}*/
+	}
 }
 
 // Called every frame
@@ -50,6 +51,27 @@ void AWmVeggieSpawner::ApplyHit()
 	if (CurrentVeggieIndex != INDEX_NONE)
 	{
 		VeggieMesh->SetVisibility(false);
+	}
+}
+
+void AWmVeggieSpawner::SetWobbleAmount(float WobbleAmount)
+{
+	if (WobbleAmount == 0.0f)
+	{
+		WobbleStartTime.Reset();
+		VeggieMesh->SetWorldRotation(FQuat::Identity);
+	}
+	else
+	{
+		if (!WobbleStartTime && WobbleAmount > 0.0f)
+		{
+			WobbleStartTime = UGameplayStatics::GetUnpausedTimeSeconds(this);
+		}
+		if (VeggieMesh)
+		{
+			const float CurrentValue = FMath::Sin((UGameplayStatics::GetUnpausedTimeSeconds(this) - *WobbleStartTime) * WobbleSpeedScale) * WobbleAmount;
+			VeggieMesh->SetWorldRotation(FQuat::MakeFromEuler(FVector(CurrentValue * 30.0f, 0.0f, 0.0f)));
+		}
 	}
 }
 

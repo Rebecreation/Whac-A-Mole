@@ -110,34 +110,16 @@ void AWmMoleCharacter::TickActor(float DeltaTime, ELevelTick TickType, FActorTic
 		}
 	}
 
-	AWmVeggieSpawner* ClosestVeggie = nullptr;
-	const bool bWasInsideForceFeedbackArea = bIsInsideForceFeedbackArea;
-	bIsInsideForceFeedbackArea = [&]
-	{
-		if (FWmGlobals* Globals = FWmGlobals::Get(this))
-		{
-			TOptional<float> minDistSquared;
-			for (const TWeakObjectPtr<AWmVeggieSpawner>& Veggie : Globals->VeggieSpawners)
-			{
-				if (Veggie.IsValid())
-				{
-					const float distSquared = FVector::DistSquared2D(GetActorLocation(), Veggie->GetActorLocation());
-					if (distSquared > FMath::Square(ForceFeedbackRadius * 100.0f)) { continue; }
-					if (!minDistSquared || distSquared < *minDistSquared)
-					{
-						minDistSquared = distSquared;
-						ClosestVeggie = Veggie.Get();
-					}
-				}
-			}
-			if (ClosestVeggie)
-			{
-				return true;
-			}
-		}
-		return false;
-	}();
+	AWmVeggieSpawner* OldClosestVeggie = ClosestVeggie;
+	ClosestVeggie = CalculateClosestVeggie(FeedbackRadius);
 
+	if (OldClosestVeggie && OldClosestVeggie != ClosestVeggie)
+	{
+		OldClosestVeggie->SetWobbleAmount(0.0f);
+	}
+
+	const bool bWasInsideForceFeedbackArea = OldClosestVeggie != nullptr;
+	const bool bIsInsideForceFeedbackArea = ClosestVeggie != nullptr;
 	const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this);
 	APlayerController* PlayerController = Cast<APlayerController>(Controller);
 	if (GlobalsDataAsset && PlayerController)
@@ -157,8 +139,15 @@ void AWmMoleCharacter::TickActor(float DeltaTime, ELevelTick TickType, FActorTic
 		}
 		if (bIsInsideForceFeedbackArea)
 		{
-			const float feedbackScale = (ForceFeedbackRadius * 100.0f - FVector::Dist2D(GetActorLocation(), ClosestVeggie->GetActorLocation())) / (ForceFeedbackRadius * 100.0f);
+			const float feedbackScale = [&]()->float
+			{
+				const float distance = FVector::Dist2D(GetActorLocation(), ClosestVeggie->GetActorLocation());
+				if (distance > FeedbackRadius) { return 1.0f; }
+				return 0.6f * ((FeedbackRadius - PickUpRadius) - (FVector::Dist2D(GetActorLocation(), ClosestVeggie->GetActorLocation()) - PickUpRadius)) / (FeedbackRadius - PickUpRadius);
+			}();
+			//const float feedbackScale = (FeedbackRadius - FVector::Dist2D(GetActorLocation(), ClosestVeggie->GetActorLocation())) / FeedbackRadius;
 			PlayerController->ForceFeedbackScale = feedbackScale;
+			ClosestVeggie->SetWobbleAmount(feedbackScale);
 		}
 	}
 }
@@ -328,6 +317,29 @@ void AWmMoleCharacter::SetStunnedMaterial(bool bStunned)
 			}
 		}
 	}
+}
+
+AWmVeggieSpawner* AWmMoleCharacter::CalculateClosestVeggie(float MaxDistance) const
+{
+	AWmVeggieSpawner* Result = nullptr;
+	if (FWmGlobals* Globals = FWmGlobals::Get(this))
+	{
+		TOptional<float> minDistSquared;
+		for (const TWeakObjectPtr<AWmVeggieSpawner>& Veggie : Globals->VeggieSpawners)
+		{
+			if (Veggie.IsValid())
+			{
+				const float distSquared = FVector::DistSquared2D(GetActorLocation(), Veggie->GetActorLocation());
+				if (distSquared > FMath::Square(MaxDistance)) { continue; }
+				if (!minDistSquared || distSquared < *minDistSquared)
+				{
+					minDistSquared = distSquared;
+					Result = Veggie.Get();
+				}
+			}
+		}
+	}
+	return Result;
 }
 
 void AWmMoleCharacter::ToggleBurrowInternal()

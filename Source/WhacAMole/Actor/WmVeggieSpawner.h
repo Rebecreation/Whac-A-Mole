@@ -40,6 +40,11 @@ public:
 	UPROPERTY(Transient, BlueprintReadWrite)
 	int32 CurrentVeggieIndex;
 
+	UPROPERTY(EditAnywhere)
+	float WobbleSpeedScale = 2.0f;
+
+	TOptional<float> WobbleStartTime;
+
 	// Sets default values for this actor's properties
 	AWmVeggieSpawner();
 
@@ -52,6 +57,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void ApplyHit();
+
+	void SetWobbleAmount(float WobbleAmount);
 
 	UFUNCTION(BlueprintCallable)
 	int32 TryPick();

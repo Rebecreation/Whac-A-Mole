@@ -9,6 +9,6 @@ public class WhacAMole : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "EnhancedInput" });
-        PrivateDependencyModuleNames.AddRange(new string[] { "ArcECS" });
+        PrivateDependencyModuleNames.AddRange(new string[] { "ArcECS", "UMG" });
     }
 }

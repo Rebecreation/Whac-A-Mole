@@ -15,6 +15,7 @@
 #include "../DataAsset/WmGlobalsDataAsset.h"
 #include "../Resource/WmGlobals.h"
 #include "WmVeggieSpawner.h"
+#include "WmGardenerCharacter.h"
 
 
 AWmMoleCharacter::AWmMoleCharacter()
@@ -187,6 +188,12 @@ void AWmMoleCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}*/
 	}
+
+	FWmGlobals* Globals = FWmGlobals::Get(this);
+	if (ensure(Globals))
+	{
+		Globals->Mole = this;
+	}
 }
 
 void AWmMoleCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -350,6 +357,16 @@ void AWmMoleCharacter::ToggleBurrowInternal()
 		if (!bIsBurrowed)
 		{
 			UndergroundStartTime.Reset();
+			FWmGlobals* Globals = FWmGlobals::Get(this);
+			AWmGardenerCharacter* Gardener = Globals ? Globals->Gardener.Get() : nullptr;
+			if (Gardener)
+			{
+				const float distanceSq = FVector::DistSquared2D(GetActorLocation(), Gardener->GetActorLocation());
+				if (distanceSq < FMath::Square(StunRadius))
+				{
+					Gardener->ApplyStun();
+				}
+			}
 		}
 		BurrowAnimationStartTime = UGameplayStatics::GetTimeSeconds(this);
 	}
@@ -370,7 +387,7 @@ void AWmMoleCharacter::TryPickUp()
 			{
 				if (AWmVeggieSpawner* Veggie = Cast<AWmVeggieSpawner>(Actor))
 				{
-					int32 numPoints = Veggie->TryPick();
+					int32 numPoints = Veggie->TryPickMole();
 					if (numPoints != INDEX_NONE)
 					{
 						Globals->MolePoints += numPoints;

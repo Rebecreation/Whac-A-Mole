@@ -38,6 +38,12 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class UForceFeedbackEffect* ForceFeedbackEffect = nullptr;
 
+	UPROPERTY(EditDefaultsOnly)
+	int32 GameDuration = 60;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget> WinScreenWidget = nullptr;
+
 public:
 
 	static const UWmGlobalsDataAsset* Get(const UObject* Context);

@@ -39,13 +39,28 @@ private:
 	UPROPERTY(EditAnywhere)
 	float HitCooldown = 1.0f;
 
+	UPROPERTY(EditAnywhere)
+	float StunDuration = 2.0f;
+
+	UPROPERTY(EditAnywhere)
+	float StunImmunityDuration = 4.0f;
+
 	TOptional<float> LastHitStartTime;
+
+	TOptional<float> StunStartTime;
+	TOptional<float> StunImmunityStartTime;
+
+	UPROPERTY()
+	TMap<class UMeshComponent*, UMaterialInterface*> CachedMaterials;
 
 public:
 
 	AWmGardenerCharacter();
 
 	virtual void TickActor(float DeltaTime, ELevelTick TickType, FActorTickFunction& ThisTickFunction) override;
+
+	void ApplyStun();
+	bool IsStunned() const;
 	
 protected:
 
@@ -66,5 +81,7 @@ protected:
 	void ApplyHit();
 
 	void TryPickUp();
+
+	void SetStunnedMaterial(bool bStunned);
 };
 

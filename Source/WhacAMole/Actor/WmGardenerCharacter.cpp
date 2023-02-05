@@ -209,7 +209,7 @@ void AWmGardenerCharacter::ApplyHit()
 			}
 			else
 			{
-                float fPitch = Mathf::RandRange(.8f,2f);
+                float fPitch = FMath::RandRange(.8f,2.f);
                 UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->HitEmpty, GetActorLocation(), GetActorRotation(), fPitch);
             }
 		}

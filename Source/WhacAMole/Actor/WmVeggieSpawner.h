@@ -6,19 +6,19 @@
 #include "GameFramework/Actor.h"
 #include "WmVeggieSpawner.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FWmVeggieData
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly)
-	UStaticMesh* VeggieMesh = nullptr;
+		UPROPERTY(BlueprintReadWrite, BlueprintReadWrite)
+		UStaticMesh* VeggieMesh = nullptr;
 
-	UPROPERTY(EditDefaultsOnly)
-	int32 PointValue = 1;
+	UPROPERTY(BlueprintReadWrite, BlueprintReadWrite)
+		int32 PointValue = 1;
 
-	UPROPERTY(EditDefaultsOnly)
-	float MaxScale = 1.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+		float MaxScale = 1.0f;
 };
 
 UCLASS()

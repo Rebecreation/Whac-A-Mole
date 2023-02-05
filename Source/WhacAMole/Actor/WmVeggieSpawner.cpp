@@ -54,7 +54,7 @@ void AWmVeggieSpawner::ApplyHit()
 	}
 }
 
-void AWmVeggieSpawner::SetWobbleAmount(float WobbleAmount)
+void AWmVeggieSpawner::SetWobbleAmount_Implementation(float WobbleAmount)
 {
 	if (WobbleAmount == 0.0f)
 	{

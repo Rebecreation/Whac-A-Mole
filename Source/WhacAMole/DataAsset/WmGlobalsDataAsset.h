@@ -32,6 +32,15 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class USoundBase* PickUpVeggie = nullptr;
 
+	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* MolePickUpVeggie = nullptr;
+
+    UPROPERTY(EditDefaultsOnly)
+    class USoundBase* FarmerTaunt = nullptr;
+
+    UPROPERTY(EditDefaultsOnly)
+    class USoundBase* MoleTaunt = nullptr;
+
     UPROPERTY(EditDefaultsOnly)
     class USoundBase* HitGardener = nullptr;
 

@@ -391,7 +391,7 @@ void AWmMoleCharacter::TryPickUp()
 					if (numPoints != INDEX_NONE)
 					{
 						Globals->MolePoints += numPoints;
-						UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->PickUpVeggie, GetActorLocation(), GetActorRotation());
+						UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->MolePickUpVeggie, GetActorLocation(), GetActorRotation());
 						UE_LOG(LogTemp, Warning, TEXT("Mole Points: %d"), Globals->MolePoints);
 					}
 				}

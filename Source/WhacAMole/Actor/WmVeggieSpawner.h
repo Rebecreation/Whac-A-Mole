@@ -11,14 +11,14 @@ struct FWmVeggieData
 {
 	GENERATED_BODY()
 
-		UPROPERTY(BlueprintReadWrite, BlueprintReadWrite)
-		UStaticMesh* VeggieMesh = nullptr;
-
-	UPROPERTY(BlueprintReadWrite, BlueprintReadWrite)
-		int32 PointValue = 1;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UStaticMesh* VeggieMesh = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-		float MaxScale = 1.0f;
+	int32 PointValue = 1;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float MaxScale = 1.0f;
 };
 
 UCLASS()
@@ -28,19 +28,19 @@ class WHACAMOLE_API AWmVeggieSpawner : public AActor
 	
 public:	
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	class USceneComponent* Root;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	class UStaticMeshComponent* VeggieMesh;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TArray<FWmVeggieData> Veggies;
 
 	UPROPERTY(Transient, BlueprintReadWrite)
 	int32 CurrentVeggieIndex;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float WobbleSpeedScale = 2.0f;
 
 	TOptional<float> WobbleStartTime;
@@ -58,6 +58,7 @@ public:
 
 	void ApplyHit();
 
+	UFUNCTION(BlueprintCallable)
 	void SetWobbleAmount(float WobbleAmount);
 
 	UFUNCTION(BlueprintCallable)

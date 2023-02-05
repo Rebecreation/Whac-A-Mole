@@ -32,6 +32,9 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	class USoundBase* PickUpVeggie = nullptr;
 
+    UPROPERTY(EditDefaultsOnly)
+    class USoundBase* HitGardener = nullptr;
+
 	UPROPERTY(EditDefaultsOnly)
 	class UMaterialInterface* StunnedMaterial = nullptr;
 

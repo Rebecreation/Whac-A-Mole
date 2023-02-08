@@ -13,13 +13,13 @@ void AWmPlayerController::SetupInputComponent()
 	InputComponent->BindAxis("GardenerMoveRight", this, &AWmPlayerController::GardenerMoveRight);
 
 	InputComponent->BindAction("GardenerHit", IE_Released, this, &AWmPlayerController::GardenerHit);
-	InputComponent->BindAction("GardenerPickUp", IE_Released, this, &AWmPlayerController::GardenerTryPickUp);
+	InputComponent->BindAction("GardenerTryPickUp", IE_Released, this, &AWmPlayerController::GardenerTryPickUp);
 	
 	InputComponent->BindAxis("MoleMoveForward", this, &AWmPlayerController::MoleMoveForward);
 	InputComponent->BindAxis("MoleMoveRight", this, &AWmPlayerController::MoleMoveRight);
 
 	InputComponent->BindAction("MoleToggleBurrow", IE_Released, this, &AWmPlayerController::MoleToggleBurrow);
-	InputComponent->BindAction("MolePickUp", IE_Released, this, &AWmPlayerController::MoleTryPickUp);
+	InputComponent->BindAction("MoleTryPickUp", IE_Released, this, &AWmPlayerController::MoleTryPickUp);
 }
 
 void AWmPlayerController::GardenerMoveForward(float Value)

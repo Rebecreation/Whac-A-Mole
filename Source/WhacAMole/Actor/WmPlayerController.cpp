@@ -7,6 +7,8 @@ void AWmPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
+	SetShowMouseCursor(true);
+
 	InputComponent->BindAxis("GardenerMoveForward", this, &AWmPlayerController::GardenerMoveForward);
 	InputComponent->BindAxis("GardenerMoveRight", this, &AWmPlayerController::GardenerMoveRight);
 

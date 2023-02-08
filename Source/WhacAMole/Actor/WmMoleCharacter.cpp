@@ -260,7 +260,8 @@ void AWmGardenerCharacter::Look(const FInputActionValue& Value)
 void AWmMoleCharacter::MoveForward(float Value)
 {
 	if (!bIsBurrowed || IsStunned()) { return;}
-	if ((Controller != nullptr) && (Value != 0.0f))
+	AddMovementInput(FVector::XAxisVector, Value);
+	/*if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -269,13 +270,14 @@ void AWmMoleCharacter::MoveForward(float Value)
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Value);
-	}
+	}*/
 }
 
 void AWmMoleCharacter::MoveRight(float Value)
 {
 	if (!bIsBurrowed || IsStunned()) { return;}
-	if ((Controller != nullptr) && (Value != 0.0f))
+	AddMovementInput(FVector::YAxisVector, Value);
+	/*if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -285,7 +287,7 @@ void AWmMoleCharacter::MoveRight(float Value)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
-	}
+	}*/
 }
 
 void AWmMoleCharacter::ToggleBurrow()

@@ -122,7 +122,8 @@ void AWmMoleCharacter::TickActor(float DeltaTime, ELevelTick TickType, FActorTic
 	const bool bWasInsideForceFeedbackArea = OldClosestVeggie != nullptr;
 	const bool bIsInsideForceFeedbackArea = ClosestVeggie != nullptr;
 	const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this);
-	APlayerController* PlayerController = Cast<APlayerController>(Controller);
+	UWorld* World = GetWorld();
+	APlayerController* PlayerController = World ? World->GetFirstPlayerController() : nullptr;
 	if (GlobalsDataAsset && PlayerController)
 	{
 		if (bWasInsideForceFeedbackArea != bIsInsideForceFeedbackArea)
@@ -260,7 +261,8 @@ void AWmGardenerCharacter::Look(const FInputActionValue& Value)
 void AWmMoleCharacter::MoveForward(float Value)
 {
 	if (!bIsBurrowed || IsStunned()) { return;}
-	if ((Controller != nullptr) && (Value != 0.0f))
+	AddMovementInput(FVector::XAxisVector, Value);
+	/*if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -269,13 +271,14 @@ void AWmMoleCharacter::MoveForward(float Value)
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Value);
-	}
+	}*/
 }
 
 void AWmMoleCharacter::MoveRight(float Value)
 {
 	if (!bIsBurrowed || IsStunned()) { return;}
-	if ((Controller != nullptr) && (Value != 0.0f))
+	AddMovementInput(FVector::YAxisVector, Value);
+	/*if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -285,7 +288,7 @@ void AWmMoleCharacter::MoveRight(float Value)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
-	}
+	}*/
 }
 
 void AWmMoleCharacter::ToggleBurrow()
@@ -334,7 +337,7 @@ AWmVeggieSpawner* AWmMoleCharacter::CalculateClosestVeggie(float MaxDistance) co
 		TOptional<float> minDistSquared;
 		for (const TWeakObjectPtr<AWmVeggieSpawner>& Veggie : Globals->VeggieSpawners)
 		{
-			if (Veggie.IsValid())
+			if (Veggie.IsValid() && Veggie->VeggieMesh->IsVisible() && Veggie->VeggieMesh->GetRelativeScale3D().X > 0.0f)
 			{
 				const float distSquared = FVector::DistSquared2D(GetActorLocation(), Veggie->GetActorLocation());
 				if (distSquared > FMath::Square(MaxDistance)) { continue; }

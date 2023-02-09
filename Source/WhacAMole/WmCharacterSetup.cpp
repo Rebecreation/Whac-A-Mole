@@ -5,6 +5,12 @@
 
 void FWmCharacterSetup::Setup(FArcUniverse& Universe, FArcScheduleBuilder& InitScheduleBuilder, FArcScheduleBuilder& TickScheduleBuilder)
 {
+	Universe.AddResource(FWmCharacterEvents());
+	
 	InitScheduleBuilder
 		.AddSystem(&FWmCharacterSystems::CreateCharacters);
+
+	TickScheduleBuilder
+		.AddSystemToStage(TEXT("Wm_EventCleanUpStage"), &FWmCharacterSystems::ClearEvents)
+		.AddSystem(&FWmCharacterSystems::HandleInput);
 }

@@ -2,6 +2,7 @@
 
 #include "ArcRes.h"
 #include "Resource/ArcCoreData.h"
+#include "../Resource/WmCharacterEvents.h"
 #include "../Resource/WmGlobals.h"
 
 struct FWmCharacterSystems
@@ -10,6 +11,7 @@ struct FWmCharacterSystems
 	static void CreateCharacters(class FArcUniverse& Universe, FArcRes<FArcCoreData> CoreData, FArcRes<FWmGlobals> Globals);
 
 	// Tick
-	//static void ClearEvents(FArcRes<FWmCharacterEvents> Events);
+	static void HandleInput(FArcRes<FWmGlobals> Globals, FArcRes<FWmCharacterEvents> Events);
+	static void ClearEvents(FArcRes<FWmCharacterEvents> Events);
 	
 };

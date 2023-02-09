@@ -42,10 +42,10 @@ void FWmCoreSystems::EvaluateGameOverCondition(FArcRes<FArcCoreData> CoreData, F
 	{
 		UUserWidget* WinScreen = CreateWidget<UUserWidget>(PlayerController, Globals->GardenerPoints > Globals->MolePoints ? GlobalsDataAsset->WinScreenFarmer : GlobalsDataAsset->WinScreenMole);
 		WinScreen->AddToViewport(1);
-		PlayerController->SetShowMouseCursor(true);
-		FInputModeGameAndUI Mode = FInputModeGameAndUI();
-		Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-		PlayerController->SetInputMode(Mode);
+		//PlayerController->SetShowMouseCursor(true);
+		//FInputModeGameAndUI Mode = FInputModeGameAndUI();
+		//Mode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		//PlayerController->SetInputMode(Mode);
 		Globals->WinScreen = WinScreen;
 	}
 }

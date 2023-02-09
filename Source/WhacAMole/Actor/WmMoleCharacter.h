@@ -97,6 +97,8 @@ protected:
 	/** Called for looking input */
 	//void Look(const FInputActionValue& Value);
 
+public:
+
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 

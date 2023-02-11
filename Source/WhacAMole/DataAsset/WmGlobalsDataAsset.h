@@ -21,6 +21,9 @@ public:
 	class USoundBase* UnburrowSound = nullptr;
 
 	UPROPERTY(EditDefaultsOnly)
+	class USoundBase* BurrowSound = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
 	class USoundBase* HitMole = nullptr;
 
 	UPROPERTY(EditDefaultsOnly)

@@ -357,8 +357,12 @@ void AWmMoleCharacter::ToggleBurrowInternal()
 	if (!BurrowAnimationStartTime)
 	{
 		bIsBurrowed = !bIsBurrowed;
-		if (!bIsBurrowed)
-		{
+		if (bIsBurrowed) {
+			if (const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this))
+			{
+				UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->BurrowSound, GetActorLocation(), GetActorRotation());
+			}
+		} else {
 			UndergroundStartTime.Reset();
 			FWmGlobals* Globals = FWmGlobals::Get(this);
 			AWmGardenerCharacter* Gardener = Globals ? Globals->Gardener.Get() : nullptr;

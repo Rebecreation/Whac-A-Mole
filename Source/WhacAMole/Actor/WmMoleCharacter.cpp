@@ -83,14 +83,6 @@ void AWmMoleCharacter::TickActor(float DeltaTime, ELevelTick TickType, FActorTic
 			if (Ratio > 1.0f)
 			{
 				BurrowAnimationStartTime.Reset();
-
-				if (!bIsBurrowed)
-				{
-					if (const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this))
-					{
-						UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->UnburrowSound, GetActorLocation(), GetActorRotation());
-					}
-				}
 			}
 		}
 
@@ -376,6 +368,18 @@ void AWmMoleCharacter::ToggleBurrowInternal()
                     {
                         UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->HitGardener, GetActorLocation(), GetActorRotation());
                     }
+				}
+				else {
+					if (const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this))
+					{
+						UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->UnburrowSound, GetActorLocation(), GetActorRotation());
+					}
+				}
+			}
+			else {
+				if (const UWmGlobalsDataAsset* GlobalsDataAsset = UWmGlobalsDataAsset::Get(this))
+				{
+					UGameplayStatics::PlaySoundAtLocation(this, GlobalsDataAsset->UnburrowSound, GetActorLocation(), GetActorRotation());
 				}
 			}
 		}

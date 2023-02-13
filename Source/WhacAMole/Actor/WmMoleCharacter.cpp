@@ -329,7 +329,7 @@ AWmVeggieSpawner* AWmMoleCharacter::CalculateClosestVeggie(float MaxDistance) co
 		TOptional<float> minDistSquared;
 		for (const TWeakObjectPtr<AWmVeggieSpawner>& Veggie : Globals->VeggieSpawners)
 		{
-			if (Veggie.IsValid() && Veggie->VeggieMesh->IsVisible() && Veggie->VeggieMesh->GetRelativeScale3D().X > 0.0f)
+			if (Veggie.IsValid() && Veggie->VeggieMesh->IsVisible() && Veggie->bIsActive && !Veggie->bIsDisabled)
 			{
 				const float distSquared = FVector::DistSquared2D(GetActorLocation(), Veggie->GetActorLocation());
 				if (distSquared > FMath::Square(MaxDistance)) { continue; }

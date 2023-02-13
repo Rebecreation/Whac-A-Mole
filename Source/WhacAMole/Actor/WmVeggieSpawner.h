@@ -87,4 +87,6 @@ public:
 	void OnReenable();
 	UPROPERTY(Transient, BlueprintReadWrite)
 	bool bIsDisabled = false;
+	UPROPERTY(Transient, BlueprintReadWrite)
+	bool bIsActive = false;
 };
